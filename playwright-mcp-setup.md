@@ -103,17 +103,50 @@ persistent profile). Log in normally. From now on the cookies are stored in
 `~/.playwright-mcp-profile` and subsequent sessions will already be
 authenticated.
 
-## 5. Ask Claude to collect the findings inputs page
+## 5. Extract the findings-inputs page for redesign planning
 
-Once logged in, run:
+The goal is a **structural map** of the page so you can plan v2 — not a copy
+of patient 85's data. A target schema lives at
+`docs/findings-inputs.template.md`; the prompt below tells Claude to fill it
+in.
+
+Once logged in, paste this prompt:
 
 ```
-Navigate to
+Use Playwright MCP. Navigate to
 https://app.berrystudio.ai/practice/patient/view/85/care-timeline/findings-inputs
-take a full-page screenshot, and extract every field label, input, section
-header, and visible text into a markdown file at
-docs/findings-inputs.md. Group by section. Include any dropdown options you
-can see by clicking on each dropdown.
+and wait until the page is fully loaded and interactive.
+
+Fill in docs/findings-inputs.md following the exact schema in
+docs/findings-inputs.template.md. Specifically:
+
+1. Save a full-page screenshot to docs/screenshots/findings-inputs-full.png,
+   plus one screenshot per major section.
+
+2. For every form field, record: label, input type (text / number / date /
+   select / multi-select / checkbox / radio / textarea / file / toggle),
+   placeholder, helper text, required-indicator (yes/no), and any visible
+   validation hints.
+
+3. For every <select>/dropdown, click it to expose the options and list ALL
+   of them. For radio and checkbox groups, list every choice.
+
+4. Note any conditional fields — fields that appear or change based on a
+   previous selection. Test a couple of representative selections to surface
+   them, but do not submit or save anything.
+
+5. Capture navigation context: breadcrumbs, tabs, side nav, parent route.
+   Note where this page sits in the broader care-timeline flow.
+
+6. List every button/action on the page (label + role: primary / secondary /
+   destructive / link).
+
+7. Do NOT include patient 85's actual values in the markdown. Replace
+   pre-filled values with `<example: ...>`. This file will be committed.
+
+8. If anything is unclear (collapsed section, behind a modal, gated by data
+   you don't want to enter), note it as a TODO at the bottom rather than
+   guessing.
 ```
 
 Claude will use the `browser_navigate`, `browser_snapshot`, `browser_click`,
